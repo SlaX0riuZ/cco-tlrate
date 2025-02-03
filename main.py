@@ -16,7 +16,7 @@ Extra Credit Awarded for Creativity
 # Input: [Bsidebool, Slatedbool, combinedholeytier, combinedpizzatier] so 4 buttons
 # /////////////////////////////// Initialize Window
 winmain = tk.Tk()
-winmain.title('CCO-tsrate')
+winmain.title('Tally Laborer - Input')
 winmain.geometry('300x300')
 winmain.config(bg='#8FD032')
 winmain.resizable(False, False)
@@ -52,9 +52,15 @@ def clearallconfirm():
     tk.Label(winconfirm, text='Are you sure you want to \n erase all data to file? \n This includes all previous entries.').place(x=10, y=10)
     tk.Button(winconfirm, text='NO', command=wcdestroy).place(x=50,y=100)
     tk.Button(winconfirm, text='YES', command=wcconfirm).place(x=120,y=100)
+
+def graphdata():
+    wingraph = tk.Toplevel(winmain)
+    wingraph.geometry('500x500')
+    wingraph.title('GRAPHED OUTPUT')
+    wingraph.iconbitmap('greencube.ico')
+    wingraph.config(bg='#61A53F')
 # ///////////////////////////////
 tk.Label(winmain, text='Tally Laborer Calculator for CCO').place(x=10,y=10)
-tk.Label(winmain, text='Cube Input Section').place(x=10,y=40)
 
 tk.Label(winmain, text='Check box if Collector\'s is B-Side.',relief='raised').place(x=10,y=70,height=25)
 bside_cb = tk.Checkbutton(winmain, text='B-Side?', variable=bsidevar, onvalue=1, offvalue=0)
@@ -79,6 +85,9 @@ send_bn.place(x=50,y=200)
 
 clearfile_bn = tk.Button(winmain,relief='raised',text='CLEAR ALL DATA',command=clearallconfirm)
 clearfile_bn.place(x=150,y=200)
+
+graphdata_bn = tk.Button(winmain,relief='raised',text='Graph All Data',command=graphdata)
+graphdata_bn.place(x=100,y=240)
 
 bside_cb.flash()
 slated_cb.flash()
