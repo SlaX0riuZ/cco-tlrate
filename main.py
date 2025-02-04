@@ -1,6 +1,8 @@
 import tkinter as tk
 import math as math
-
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+import numpy as np
 '''
 Your task is to create a multi-window app that passes data from one window to another. App must include at minumum:
 
@@ -70,16 +72,27 @@ def graphdata(): # function to graph the data
     rfile = open('fixeddata.txt', 'r') # readonly
     try:
         filelines = rfile.readlines()
-        for line in filelines:
-            hindex = float(rfile[line.index('H')+1:line.index('P')])
-            pindex = float(rfile[line.index('P')])
-            if line[2] == '1': # Check type
+        for fline in range(len(filelines)):
+            ffl = filelines[fline]
+            hindex = ffl[ffl.index('H')+1:ffl.index('P')]
+            print(str(hindex))
+            pindex = ffl[ffl.index('P'):]
+            if fline[2] == '1': # Check type
                 tcps = tcps + math.ceil(((1.4 * (hindex + 1)) * (1.4 * pindex * 1.2)) * 0.4) # using string slicing, add calculation to tcps
             else:
                 tcps = tcps + math.ceil((hindex+1) * (pindex * 1.2)) # again, but if type did not pass slated check
     except:
         wingraph.destroy()
         err_lbl.config(text='Error with graphing. \nTry clearing and re-inputting all data.')
+    try:
+        xaxisnames = ['+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9']
+        yvalues = [1680, 3920, 6720, 10080, 14000, 18480, 23520, 29120, 35280]
+        plt.bar(xaxisnames, yvalues)
+        plt.show()
+    except:
+        wingraph.destroy()
+        err_lbl.config(text='Error with graphing inputs.\n Make sure all inputs are numbers.')
+
 # /////////////////////////////// [WINDOW SETUP]
 # Respective title label
 tk.Label(winmain, text='Tally Laborer Calculator for CCO').place(x=10,y=10)
