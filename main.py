@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+import math as math
 
 '''
 Your task is to create a multi-window app that passes data from one window to another. App must include at minumum:
@@ -28,14 +28,17 @@ nfile = open('fixeddata.txt', 'a') # nfile used to append to fixeddata
 def senddata():
     bbool = '0' # Temporary variables; should be 0 each time senddata() is used
     sbool = '0'
-    if str(bsidevar) == 'PY_VAR1': # Both if statements are used to convert the .IntVar string to a numerical one
-        bbool = '1'
-    if str(slatedvar) == 'PY_VAR1':
-        sbool = '1'
-    htier = holey_txt.get() # get combined holey
-    ptier = pizza_txt.get() # get combined pizza
-    nfile.write('\n') # newline
-    nfile.write(bbool + '/' + sbool + '/' + htier + '/' + ptier) # data storage format
+    try:
+        if str(bsidevar) == 'PY_VAR1': # Both if statements are used to convert the .IntVar string to a numerical one
+            bbool = '1'
+        if str(slatedvar) == 'PY_VAR1':
+            sbool = '1'
+        htier = holey_txt.get() # get combined holey
+        ptier = pizza_txt.get() # get combined pizza
+        nfile.write('\n') # newline
+        nfile.write(bbool + 'S' + sbool + 'H' + htier + 'P' + ptier) # data storage format
+    except:
+        err_lbl.config(text='Error with sending data. \nMake sure ALL DATA is numbers.')
 
 def clearallconfirm(): # function to open confirmation window
     # Initialize window "winconfirm" from winmain
@@ -62,6 +65,21 @@ def graphdata(): # function to graph the data
     wingraph.title('GRAPHED OUTPUT')
     wingraph.iconbitmap('greencube.ico')
     wingraph.config(bg='#61A53F')
+    # Declare initial variables
+    tcps = 0 # tally credits per spin
+    rfile = open('fixeddata.txt', 'r') # readonly
+    try:
+        filelines = rfile.readlines()
+        for line in filelines:
+            hindex = float(rfile[line.index('H')+1:line.index('P')])
+            pindex = float(rfile[line.index('P')])
+            if line[2] == '1': # Check type
+                tcps = tcps + math.ceil(((1.4 * (hindex + 1)) * (1.4 * pindex * 1.2)) * 0.4) # using string slicing, add calculation to tcps
+            else:
+                tcps = tcps + math.ceil((hindex+1) * (pindex * 1.2)) # again, but if type did not pass slated check
+    except:
+        wingraph.destroy()
+        err_lbl.config(text='Error with graphing. \nTry clearing and re-inputting all data.')
 # /////////////////////////////// [WINDOW SETUP]
 # Respective title label
 tk.Label(winmain, text='Tally Laborer Calculator for CCO').place(x=10,y=10)
@@ -91,10 +109,10 @@ clearfile_bn = tk.Button(winmain,relief='raised',text='CLEAR ALL DATA',command=c
 clearfile_bn.place(x=90,y=200)
 # Graphing Button
 graphdata_bn = tk.Button(winmain,relief='raised',text='Graph All Data',command=graphdata)
-graphdata_bn.place(x=100,y=240)
+graphdata_bn.place(x=200,y=200)
 # Error Handling Label
-err_lbl = tk.Label(winmain,text='ERROR HANDLER')
-err_lbl.place(x=10,y=270,width=280)
+err_lbl = tk.Label(winmain,text='ERROR HANDLER', font=('Arial', 10))
+err_lbl.place(x=10,y=240,width=280,height=40)
 # /////////////////////////////// [UPDATES AND LOOPS]
 # Update the Checkboxes using .flash()
 bside_cb.flash()
