@@ -2,7 +2,6 @@ import tkinter as tk
 import math as math
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-import numpy as np
 '''
 Your task is to create a multi-window app that passes data from one window to another. App must include at minumum:
 
@@ -18,27 +17,25 @@ Extra Credit Awarded for Creativity
 # /////////////////////////////// [INITIALIZE WINDOW]
 winmain = tk.Tk()
 winmain.title('Tally Laborer - Input')
-winmain.geometry('300x300')
+winmain.geometry('800x300')
 winmain.config(bg='#8FD032')
 winmain.resizable(False, False)
 winmain.iconbitmap('greencube.ico')
 # /////////////////////////////// [INITIALIZE VARIABLES]
 bsidevar = tk.IntVar()
 slatedvar = tk.IntVar() # Checkboxes can only manipulate .IntVar variable types
-nfile = open('fixeddata.txt', 'a') # nfile used to append to fixeddata
 # /////////////////////////////// [COMMANDS]
-def senddata():
-    bbool = '0' # Temporary variables; should be 0 each time senddata() is used
+def senddata(): 
+    # Temporary variables; should be 0 each time senddata() is used
     sbool = '0'
     try:
-        if str(bsidevar) == 'PY_VAR1': # Both if statements are used to convert the .IntVar string to a numerical one
-            bbool = '1'
         if str(slatedvar) == 'PY_VAR1':
             sbool = '1'
         htier = holey_txt.get() # get combined holey
         ptier = pizza_txt.get() # get combined pizza
+        nfile = open('fixeddata.txt', 'a') # append to fixeddata
         nfile.write('\n') # newline
-        nfile.write(bbool + 'S' + sbool + 'H' + htier + 'P' + ptier) # data storage format
+        nfile.write(sbool + 'H' + htier + 'P' + ptier) # data storage format
     except:
         err_lbl.config(text='Error with sending data. \nMake sure ALL DATA is numbers.')
 
@@ -63,32 +60,42 @@ def clearallconfirm(): # function to open confirmation window
 def graphdata(): # function to graph the data
     # Initialize window "wingraph" from winmain
     wingraph = tk.Toplevel(winmain)
-    wingraph.geometry('500x500')
+    wingraph.geometry('700x500')
     wingraph.title('GRAPHED OUTPUT')
     wingraph.iconbitmap('greencube.ico')
     wingraph.config(bg='#61A53F')
     # Declare initial variables
     tcps = 0 # tally credits per spin
     rfile = open('fixeddata.txt', 'r') # readonly
+    # Reading the Text File!
     try:
         filelines = rfile.readlines()
         for fline in range(len(filelines)):
             ffl = filelines[fline]
-            hindex = ffl[ffl.index('H')+1:ffl.index('P')]
-            print(str(hindex))
-            pindex = ffl[ffl.index('P'):]
-            if fline[2] == '1': # Check type
-                tcps = tcps + math.ceil(((1.4 * (hindex + 1)) * (1.4 * pindex * 1.2)) * 0.4) # using string slicing, add calculation to tcps
-            else:
-                tcps = tcps + math.ceil((hindex+1) * (pindex * 1.2)) # again, but if type did not pass slated check
+            hindex = int(ffl[ffl.index('H')+1:ffl.index('P')])
+            pindex = int(ffl[ffl.index('P')+1:])
+            try:
+                if ffl.index('1') == 0: # Check type
+                    tcps = tcps + math.ceil(((1.4 * (hindex + 1)) * (1.4 * pindex * 1.2)) * 0.4) # using string slicing, add calculation to tcps
+                    print(str(tcps))
+            except ValueError:
+                    tcps = tcps + math.ceil((hindex+1) * (pindex * 1.2)) # again, but if type did not pass slated check
+                    print(str(tcps))
     except:
         wingraph.destroy()
-        err_lbl.config(text='Error with graphing. \nTry clearing and re-inputting all data.')
+        err_lbl.config(text='Error with graphing. \nTry clearing and re-inputting all data.') # Something must be wrong with the data.
+    # Plotting the graph.
     try:
-        xaxisnames = ['+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9']
-        yvalues = [1680, 3920, 6720, 10080, 14000, 18480, 23520, 29120, 35280]
-        plt.bar(xaxisnames, yvalues)
-        plt.show()
+        xaxisnames = ['UPKEEP', '+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9']
+        yvalues = [tcps, 1680, 3920, 6720, 10080, 14000, 18480, 23520, 29120, 35280]
+        fig, ax = plt.subplots()
+        ax.bar(xaxisnames, yvalues)
+        canvas = FigureCanvasTkAgg(fig, master=wingraph)
+        canvas.get_tk_widget().place(x=0,y=0)
+        toolbar = NavigationToolbar2Tk(canvas, window=wingraph, pack_toolbar=False)
+        toolbar.update()
+        toolbar.place(x=0,y=0)
+        canvas.draw()
     except:
         wingraph.destroy()
         err_lbl.config(text='Error with graphing inputs.\n Make sure all inputs are numbers.')
@@ -96,39 +103,36 @@ def graphdata(): # function to graph the data
 # /////////////////////////////// [WINDOW SETUP]
 # Respective title label
 tk.Label(winmain, text='Tally Laborer Calculator for CCO').place(x=10,y=10)
-# Checkbox and label setup for B-Side Boolean
-tk.Label(winmain, text='Check box if Collector\'s is B-Side.',relief='raised').place(x=10,y=70,height=25)
-bside_cb = tk.Checkbutton(winmain, text='B-Side?', variable=bsidevar, onvalue=1, offvalue=0)
-bside_cb.config(bg='#61A53F',selectcolor='#C4F129', relief='raised')
-bside_cb.place(x=200,y=70)
 # Checkbox and label setup for Slated Boolean
-tk.Label(winmain, text='Check box if Collector\'s is Slated.',relief='raised').place(x=10,y=100,height=25)
+tk.Label(winmain, text='Check box if Collector\'s is Slated.',relief='raised').place(x=10,y=50,height=25)
 slated_cb = tk.Checkbutton(winmain, text='Slated?', variable=slatedvar, onvalue=1, offvalue=0)
 slated_cb.config(bg='#61A53F',selectcolor='#C4F129', relief='raised')
-slated_cb.place(x=200,y=100)
+slated_cb.place(x=200,y=50)
 # Label and respective input for Holey Sigils
-tk.Label(winmain, text='Input Combined Tier of Holeys: ',relief='raised').place(x=10,y=140)
+tk.Label(winmain, text='Input Combined Tier of Holeys: ',relief='raised').place(x=10,y=90)
 holey_txt = tk.Entry(winmain,relief='raised')
-holey_txt.place(x=200,y=140,width=90)
+holey_txt.place(x=200,y=90,width=90)
 # Label and respective input for Pizza Sigils
-tk.Label(winmain, text='Input Combined Tier of Pizzas: ',relief='raised').place(x=10,y=170)
+tk.Label(winmain, text='Input Combined Tier of Pizzas: ',relief='raised').place(x=10,y=120)
 pizza_txt = tk.Entry(winmain,relief='raised')
-pizza_txt.place(x=200,y=170,width=90)
+pizza_txt.place(x=200,y=120,width=90)
 # Sending Data Button
 send_bn = tk.Button(winmain,relief='raised',text='Store Inputs',command=senddata)
-send_bn.place(x=10,y=200)
+send_bn.place(x=10,y=150)
 # Clearing File Button
 clearfile_bn = tk.Button(winmain,relief='raised',text='CLEAR ALL DATA',command=clearallconfirm)
-clearfile_bn.place(x=90,y=200)
+clearfile_bn.place(x=90,y=150)
 # Graphing Button
 graphdata_bn = tk.Button(winmain,relief='raised',text='Graph All Data',command=graphdata)
-graphdata_bn.place(x=200,y=200)
+graphdata_bn.place(x=200,y=150)
 # Error Handling Label
 err_lbl = tk.Label(winmain,text='ERROR HANDLER', font=('Arial', 10))
 err_lbl.place(x=10,y=240,width=280,height=40)
+# Help Image
+helpimg = tk.PhotoImage('icohelp.png')
+helpimg_lbl = tk.Label(winmain, image=helpimg).place(x=300,y=0, width=500, height=300)
 # /////////////////////////////// [UPDATES AND LOOPS]
-# Update the Checkboxes using .flash()
-bside_cb.flash()
+# Update the Checkbox using .flash()
 slated_cb.flash()
 # Mainloop
 winmain.mainloop()
