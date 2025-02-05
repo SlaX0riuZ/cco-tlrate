@@ -2,6 +2,7 @@ import tkinter as tk
 import math as math
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from PIL import (Image, ImageTk)
 '''
 Your task is to create a multi-window app that passes data from one window to another. App must include at minumum:
 
@@ -46,6 +47,7 @@ def clearallconfirm(): # function to open confirmation window
     winconfirm.config(bg='#61A53F')
     winconfirm.title('CONFIRM DATA ERASURE')
     winconfirm.iconbitmap('greencube.ico')
+    winconfirm.resizable(False, False)
     # Respective commands for "YES" click and "NO" click
     def wcdestroy():
         winconfirm.destroy()
@@ -60,10 +62,11 @@ def clearallconfirm(): # function to open confirmation window
 def graphdata(): # function to graph the data
     # Initialize window "wingraph" from winmain
     wingraph = tk.Toplevel(winmain)
-    wingraph.geometry('700x500')
+    wingraph.geometry('600x475')
     wingraph.title('GRAPHED OUTPUT')
     wingraph.iconbitmap('greencube.ico')
     wingraph.config(bg='#61A53F')
+    wingraph.resizable(False, False)
     # Declare initial variables
     tcps = 0 # tally credits per spin
     rfile = open('fixeddata.txt', 'r') # readonly
@@ -72,30 +75,30 @@ def graphdata(): # function to graph the data
         filelines = rfile.readlines()
         for fline in range(len(filelines)):
             ffl = filelines[fline]
-            hindex = int(ffl[ffl.index('H')+1:ffl.index('P')])
-            pindex = int(ffl[ffl.index('P')+1:])
+            hindex = int(ffl[ffl.index('H')+1:ffl.index('P')]) # get index of numbers corresponding to holey tier
+            pindex = int(ffl[ffl.index('P')+1:]) # same thing but pizza tier
             try:
                 if ffl.index('1') == 0: # Check type
                     tcps = tcps + math.ceil(((1.4 * (hindex + 1)) * (1.4 * pindex * 1.2)) * 0.4) # using string slicing, add calculation to tcps
-                    print(str(tcps))
             except ValueError:
                     tcps = tcps + math.ceil((hindex+1) * (pindex * 1.2)) # again, but if type did not pass slated check
-                    print(str(tcps))
     except:
         wingraph.destroy()
         err_lbl.config(text='Error with graphing. \nTry clearing and re-inputting all data.') # Something must be wrong with the data.
     # Plotting the graph.
     try:
-        xaxisnames = ['UPKEEP', '+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9']
-        yvalues = [tcps, 1680, 3920, 6720, 10080, 14000, 18480, 23520, 29120, 35280]
-        fig, ax = plt.subplots()
-        ax.bar(xaxisnames, yvalues)
-        canvas = FigureCanvasTkAgg(fig, master=wingraph)
-        canvas.get_tk_widget().place(x=0,y=0)
-        toolbar = NavigationToolbar2Tk(canvas, window=wingraph, pack_toolbar=False)
-        toolbar.update()
-        toolbar.place(x=0,y=0)
-        canvas.draw()
+        xaxisnames = ['UPKEEP', '+1', '+2', '+3', '+4', '+5', '+6', '+7', '+8', '+9'] # set
+        yvalues = [tcps, 1680, 3920, 6720, 10080, 14000, 18480, 23520, 29120, 35280] # set
+        fig, ax = plt.subplots() # create subplot
+        ax.bar(xaxisnames, yvalues) # bar graph with said axes
+        for i in range(len(yvalues)):
+            ax.text(i,yvalues[i]+100,yvalues[i],ha='center') # label corresponding to the value
+        canvas = FigureCanvasTkAgg(fig, master=wingraph) # make canvas
+        canvas.get_tk_widget().place(x=0,y=0) # tkwidget
+        toolbar = NavigationToolbar2Tk(canvas, window=wingraph, pack_toolbar=False) # use toolbar
+        toolbar.update() # update
+        toolbar.place(x=0,y=0) # place
+        canvas.draw() # draw
     except:
         wingraph.destroy()
         err_lbl.config(text='Error with graphing inputs.\n Make sure all inputs are numbers.')
@@ -129,10 +132,9 @@ graphdata_bn.place(x=200,y=150)
 err_lbl = tk.Label(winmain,text='ERROR HANDLER', font=('Arial', 10))
 err_lbl.place(x=10,y=240,width=280,height=40)
 # Help Image
-helpimg = tk.PhotoImage('icohelp.png')
+helpimg = Image.open('icohelp.png') # open the image
+helpimg = ImageTk.PhotoImage(helpimg) # move it to tk
 helpimg_lbl = tk.Label(winmain, image=helpimg).place(x=300,y=0, width=500, height=300)
 # /////////////////////////////// [UPDATES AND LOOPS]
-# Update the Checkbox using .flash()
-slated_cb.flash()
-# Mainloop
-winmain.mainloop()
+slated_cb.flash() # Update the Checkbox using .flash()
+winmain.mainloop() # Mainloop
